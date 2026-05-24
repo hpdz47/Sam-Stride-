@@ -1,7 +1,0 @@
-name: "Controller"
-api_type: "openai"
-temperature: 0.2
-response_format: "GitControlResponse"
-llm_type: "Reasoning"
-Multimodal: false
-enable_thinking: false

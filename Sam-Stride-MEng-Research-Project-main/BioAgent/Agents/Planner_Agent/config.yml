@@ -1,7 +1,0 @@
-name: "Planner"
-api_type: "openai"
-temperature: 0.3
-response_format: "PlanResponse"
-llm_type: "Reasoning"
-Multimodal: false
-enable_thinking: false
