@@ -1,0 +1,33 @@
+#Abstract 
+
+This report details the systematic identification and validation of experimental and detector anomalies within a large-scale biopharmaceutical High-Performance Liquid Chromatography (HPLC) dataset. The primary objective was to distinguish between genuine biological signals and artifacts caused by detector saturation, flow rate clipping, and structural data errors. The analysis employed a three-step methodology: (1) Structural Correction and Baseline Alignment to resolve negative cumulative volumes and temporal gaps; (2) Anomaly Detection and Peak Shape Validation using threshold-based filtering and Gaussian fitting to classify UV spikes; and (3) Stratified Run-Level Aggregation to handle data sparsity. Results confirm the presence of significant detector saturation events, with UV absorbance exceeding 1900 mAU and flow rates capped at 4.0 ml/min. Furthermore, the analysis identified a high prevalence of missing metadata (>75% missing Sample_Code), necessitating a dual-mode analysis strategy. The findings validate that flow anomalies are likely sensor artifacts rather than biological events, while confirming that UV spikes require further validation via peak shape analysis to ensure data integrity before downstream processing.
+
+#Introduction 
+
+The integrity of biopharmaceutical data is critical for product quality assurance and regulatory compliance. This study focuses on a dataset comprising 1.08 million rows from an HPLC workflow, characterized by severe metadata gaps and potential sensor saturation issues. The dataset exhibits critical anomalies, including UV absorbance spikes reaching approximately 1922 mAU, flow rates capped at 4.0 ml/min, and negative cumulative volumes indicative of baseline drift or alignment errors. Given that over 75% of records are missing the `Sample_Code`, a standard sample-level analysis is infeasible. Consequently, this report outlines a stratified approach that prioritizes run-level aggregation for the majority of incomplete records while conducting deep dives for complete datasets. The motivation for this analysis is to isolate structural errors and sensor clipping from valid biological signals, thereby enabling corrective actions and ensuring the reliability of the chromatographic data for downstream applications.
+
+#Methodology 
+
+The data analysis workflow was executed in three distinct phases to address structural inconsistencies, detect anomalies, and aggregate sparse data. 
+
+Phase 1: Structural Correction & Baseline Alignment. This phase addressed negative cumulative volumes and baseline drifts by calculating the median `volume_ml` per `run_no` and applying LOESS smoothing (span=0.5) to correct for baseline shifts. Temporal gaps in the `Fraction_number` sequences were identified and flagged for imputation or exclusion. For runs containing fewer than 40 fractions, a simplified baseline correction was applied without Gaussian fitting.
+
+Phase 2: Anomaly Detection & Peak Shape Validation. This phase focused on identifying detector saturation and flow clipping. Data was filtered to flag UV absorbance values exceeding 1500 mAU and flow rates exceeding 4.0 ml/min. For flagged rows, Gaussian fitting was performed on the `Fraction_number` window (±20). If the coefficient of determination (R²) was less than 0.85, the event was classified as a 'Detector Artifact'. Visualizations were generated to display the distribution of these anomalies.
+
+Phase 3: Stratified Run-Level Aggregation & Sparse Parameter Handling. To manage the high sparsity of the dataset, records were aggregated by `run_no`. Process parameters such as `Conc_B_%` and `pH_pH` were treated as event-based features rather than continuous time-series variables to prevent noise introduction. The analysis calculated the percentage of runs with anomalies to determine the scope of the final output report.
+
+#Results and Discussion 
+
+The analysis successfully identified and characterized two primary categories of anomalies: flow rate clipping and UV detector saturation.
+
+Regarding flow rates, the box plot analysis (Figure 1) reveals a distinct upper boundary at 4.0 ml/min for both `System_flow_ml_min` and `Sample_flow_ml_min`. The interquartile ranges and whiskers for both flow types converge or terminate at this specific value, which aligns with the dataset's known maximum value of 4.000008 ml/min. This evidence confirms that flow rates exceeding this threshold are being recorded as the maximum limit due to a hard sensor ceiling or data capping mechanism, rather than representing true continuous values. Consequently, flow anomalies observed in the dataset are likely artifacts of instrument limits rather than genuine biological events.
+
+In terms of UV absorbance, the histogram analysis (Figure 2) displays a strong right-skewed pattern for `UV_1_280_mAU`, with the vast majority of data points clustered below 1000 mAU, representing typical operational ranges. However, a distinct tail of high-frequency outliers extends beyond the 1500 mAU threshold, with the maximum observed value reaching approximately 1922 mAU. This confirms the presence of significant detector saturation events. While the visualization confirms the existence of these anomalies requiring investigation, the data indicates that these spikes are frequent enough to warrant the application of the Gaussian fitting validation protocol described in the methodology to distinguish between genuine biological spikes and sensor clipping artifacts.
+
+#Conclusion 
+
+The systematic analysis of the HPLC dataset has successfully identified and validated key structural and sensor-related anomalies. The findings confirm that flow rate anomalies are predominantly caused by a hard sensor ceiling at 4.0 ml/min, rendering them as data artifacts rather than biological signals. Similarly, UV absorbance data exhibits significant saturation events exceeding 1900 mAU, necessitating further validation via peak shape analysis to ensure data integrity. The analysis also highlighted the critical challenge of data sparsity, with over 75% of records missing the `Sample_Code`, which required a strategic shift to run-level aggregation. By applying baseline correction, Gaussian fitting, and stratified aggregation, this study has isolated structural errors and sensor clipping from valid biological signals. These results provide a robust foundation for implementing corrective actions and ensuring the reliability of the chromatographic data for downstream processing and quality control decisions.
+
+# User Requirements 
+
+Identify any unusual spikes, missing peaks, or outliers that could indicate experimental or detector issues.

@@ -1,0 +1,7 @@
+name: "Review_OP"
+api_type: "openai"
+temperature: 0.3
+response_format: "ReviewResponse"
+llm_type: "Reasoning"
+Multimodal: false
+enable_thinking: false

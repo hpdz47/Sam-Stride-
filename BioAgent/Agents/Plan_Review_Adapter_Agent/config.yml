@@ -1,0 +1,7 @@
+name: "Plan_Adapter"
+api_type: "openai"
+temperature: 0.3
+response_format: "LearningResponse"
+llm_type: "Reasoning"
+Multimodal: false
+enable_thinking: false

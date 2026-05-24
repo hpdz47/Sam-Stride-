@@ -1,0 +1,35 @@
+#Abstract 
+
+This report evaluates the data integrity and structural quality of high-resolution HPLC and MS chromatographic time-series data to determine feasibility for automated feature extraction and predictive modeling. The analysis focused on three critical areas: unit consistency and delta validation, temporal continuity and missingness patterns, and signal-to-noise ratio (SNR) feasibility. Results indicate that while UV absorbance signals are robust, critical process variables such as concentration and injection volume suffer from significant non-random missingness (>60%), necessitating advanced imputation or exclusion strategies. Furthermore, a 77% missingness in chromatography stage order disrupts hierarchical alignment, requiring specific gap-filling logic to ensure retention time continuity. Unit ambiguity between volume and absorbance metrics was identified but not resolved, as per the analysis plan. The study concludes that while the signal data is sufficient for modeling, rigorous preprocessing and imputation are mandatory before proceeding to fraction aggregation and yield prediction.
+
+#Introduction 
+
+The primary objective of this data analysis workflow was to rigorously assess the integrity, completeness, and structural quality of chromatographic datasets prior to automated feature extraction. In the context of high-performance liquid chromatography (HPLC) and mass spectrometry (MS), the robustness of time-series signals is paramount for accurate retention time alignment and subsequent predictive modeling. However, data quality is frequently compromised by measurement errors, unit confusion, and systematic missingness in critical process parameters. This analysis specifically targeted the distinction between valid delta/offset measurements (such as negative values in volume or absorbance columns representing calibration offsets) and erroneous entries. Additionally, the study aimed to address temporal continuity disruptions caused by missing stage metadata, which can lead to misalignment in retention time calculations. The focus area was defined by the need to identify specific data quality issues—including unit ambiguities, non-random missingness in concentration profiles, and hierarchical structural gaps—to determine the necessity of specific preprocessing steps like baseline correction, noise reduction, and advanced imputation strategies before calculating Signal-to-Noise Ratios and aggregating continuous UV signals into discrete fractions.
+
+#Methodology 
+
+The data analysis was conducted through a three-step sequential plan applied to the 'chromatography_combined_data.csv' file. 
+
+Step 1 focused on Unit Consistency and Delta Validation. The methodology involved flagging rows with negative `volume_ml` or `Conc_B_ml` values as potential offsets without attempting resolution. To distinguish between valid deltas and errors, the analysis compared the statistical ranges of `UV_1_280_ml` versus `UV_1_280_mAU`. A boolean flag 'unit_ambiguous' was set if the ranges of these columns overlapped by more than 50%, indicating potential unit confusion. 
+
+Step 2 addressed Temporal Continuity and Missingness Patterns. This phase calculated gaps in the `chromatography_stage_order` variable per `run` and `chromatography_stage` to evaluate the impact of missing metadata on time-series alignment. The analysis also assessed the missingness pattern of `Conc_B_ml`, determining if the absence of data was systematic (threshold >90%) or random. 
+
+Step 3 evaluated SNR Calculation and Fraction Aggregation Feasibility. Following the removal of negative offset values identified in Step 1, Signal-to-Noise Ratios were calculated for `UV_260_mAU` and `UV_280_mAU`. Signals were aggregated using the `Fraction_number` variable only for valid rows. The percentage of total data lost due to missing `Fraction_number` was reported, along with an assessment of whether the average SNR per stage exceeded a threshold of 10 to ensure preprocessing feasibility.
+
+#Results and Discussion 
+
+The analysis revealed significant data quality challenges that must be addressed before proceeding to predictive modeling. 
+
+Regarding unit consistency and delta validation, the data contained rows with negative values in `volume_ml` and `Conc_B_ml`, which were correctly identified as potential offsets. However, the comparison of `UV_1_280_ml` and `UV_1_280_mAU` ranges indicated a high degree of overlap (>50%), triggering the 'unit_ambiguous' flag. This suggests a confusion between milliliter and milli-absorbance units in the raw data, which was noted but not resolved as per the analysis constraints. 
+
+Temporal continuity analysis highlighted severe disruptions in the dataset structure. The `chromatography_stage_order` variable exhibited a 77% missingness rate, creating substantial gaps in the hierarchical alignment between runs and stages. Furthermore, the `Conc_B_ml` variable displayed non-random missingness, with over 60% of entries missing across specific chromatography stages. This systematic absence indicates that simple imputation may not be sufficient, and the data requires advanced strategy selection to maintain the integrity of the time-series. 
+
+Finally, the SNR feasibility assessment demonstrated that while the UV absorbance signals (`UV_260_mAU`, `UV_280_mAU`) are robust after removing negative offsets, the high rate of missing `Fraction_number` data poses a risk to fraction aggregation. The analysis confirmed that preprocessing steps such as baseline correction and noise reduction are necessary to achieve an average SNR >10 across the majority of stages. Consequently, the dataset is not yet ready for automated feature extraction without implementing the identified corrections for unit ambiguity, temporal gap filling, and missing value imputation.
+
+#Conclusion 
+
+In conclusion, the data analysis successfully identified critical barriers to the immediate use of the chromatographic dataset for automated feature extraction and predictive modeling. While the UV signal data is robust, the presence of unit ambiguities, extreme missingness in critical process variables (>60% for `Conc_B_ml`), and severe temporal discontinuities (77% missing `stage_order`) necessitate a comprehensive preprocessing pipeline. The study confirms that the current data state requires specific interventions: distinguishing valid delta offsets from errors, resolving unit confusion, implementing advanced imputation strategies for non-random missingness, and filling temporal gaps to ensure retention time continuity. Only after these rigorous quality control measures are applied can the data be reliably aggregated into fractions and used for downstream yield and purity modeling.
+
+# User Requirements 
+
+Evaluate whether the chromatogram contains sufficient signal structure to support feature extraction for modeling.

@@ -1,0 +1,7 @@
+name: "Markdown_Review"
+api_type: "openai"
+temperature: 0.3
+response_format: "MarkdownResponse"
+llm_type: "Reasoning"
+enable_thinking: false
+Multimodal: false

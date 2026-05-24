@@ -1,0 +1,162 @@
+{
+  "data": {
+    "metadata": {
+      "Test_Data.csv": {
+        "num_columns": 16,
+        "columns": [
+          {
+            "title": "Sample_ID",
+            "index": 0
+          },
+          {
+            "title": "Compound_Name",
+            "index": 1
+          },
+          {
+            "title": "Retention_Time_min",
+            "index": 2
+          },
+          {
+            "title": "Peak_Area",
+            "index": 3
+          },
+          {
+            "title": "Peak_Height",
+            "index": 4
+          },
+          {
+            "title": "Concentration_mg_mL",
+            "index": 5
+          },
+          {
+            "title": "Column_Temperature_C",
+            "index": 6
+          },
+          {
+            "title": "Flow_Rate_mL_min",
+            "index": 7
+          },
+          {
+            "title": "Mobile_Phase",
+            "index": 8
+          },
+          {
+            "title": "Injection_Volume_uL",
+            "index": 9
+          },
+          {
+            "title": "Resolution",
+            "index": 10
+          },
+          {
+            "title": "Tailing_Factor",
+            "index": 11
+          },
+          {
+            "title": "Theoretical_Plates",
+            "index": 12
+          },
+          {
+            "title": "Peak_Width_min",
+            "index": 13
+          },
+          {
+            "title": "Recovery_Percent",
+            "index": 14
+          },
+          {
+            "title": "RSD_Percent",
+            "index": 15
+          }
+        ],
+        "num_rows": 20,
+        "row_indices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20
+        ]
+      }
+    },
+    "Plan": {
+      "Usability_Plan": [
+        {
+          "Step_Number": 1,
+          "Description": "Check for missing data using Pandas' isnull().sum() to identify columns with high missing values. If necessary, impute missing values using SimpleImputer from sklearn or remove the rows/columns with excessive missing data."
+        },
+        {
+          "Step_Number": 2,
+          "Description": "Assess data noise by calculating the standard deviation of the 'Peak_Area' and 'Peak_Height' columns. If the noise level is too high, consider applying a smoothing technique such as a moving average or a Savitzky-Golay filter from scipy.signal."
+        },
+        {
+          "Step_Number": 3,
+          "Description": "Evaluate experimental biases such as sensor drift by plotting the 'Retention_Time_min' against 'Peak_Area' and 'Peak_Height' to detect any trends or anomalies. Use statistical tests like the Kolmogorov-Smirnov test to check for normality in the 'Concentration_mg_mL' and 'Recovery_Percent' columns."
+        },
+        {
+          "Step_Number": 4,
+          "Description": "Check for outliers using the Interquartile Range (IQR) method on the 'Concentration_mg_mL' and 'Recovery_Percent' columns. Remove or transform outliers if they significantly affect the analysis."
+        }
+      ],
+      "HPLC_Analysis_Plan": [
+        {
+          "Step_Number": 1,
+          "Description": "Visualize the retention time distribution using a histogram or boxplot to identify any anomalies or clusters in the 'Retention_Time_min' column."
+        },
+        {
+          "Step_Number": 2,
+          "Description": "Perform a correlation analysis between 'Retention_Time_min' and 'Peak_Area' to understand the relationship between retention time and peak area using Pandas' corr() function."
+        },
+        {
+          "Step_Number": 3,
+          "Description": "Use the 'Peak_Area' and 'Concentration_mg_mL' to calculate the detection limit and quantification limit using the formula: Detection Limit = 3 * Standard Deviation of the blank / Slope of the calibration curve. If calibration curve or blank data are not available, this step may need to be adjusted or omitted."
+        },
+        {
+          "Step_Number": 4,
+          "Description": "Plot the 'Retention_Time_min' against 'Peak_Height' to visualize the peak shape and identify any potential issues with resolution or tailing using Matplotlib or Seaborn."
+        }
+      ],
+      "Mass_Spectrometry_Plan": [
+        {
+          "Step_Number": 1,
+          "Description": "Check the 'Mobile_Phase' and 'Column_Temperature_C' for any patterns that may affect the mass spectrometry results. Use a bar chart or heatmap to visualize the distribution of these parameters."
+        },
+        {
+          "Step_Number": 2,
+          "Description": "Perform a principal component analysis (PCA) on the 'Peak_Area', 'Peak_Height', and 'Concentration_mg_mL' to identify the most significant contributors to the variance using sklearn.decomposition.PCA. Ensure that these variables are relevant to the mass spectrometry data and provide a clear rationale for their inclusion."
+        },
+        {
+          "Step_Number": 3,
+          "Description": "Use the 'Resolution' and 'Theoretical_Plates' to assess the column performance and plot these values against 'Retention_Time_min' to identify any trends or issues."
+        },
+        {
+          "Step_Number": 4,
+          "Description": "Visualize the 'Tailing_Factor' and 'Peak_Width_min' using a scatter plot to assess the peak shape and resolution, and identify any potential issues with the mass spectrometry setup."
+        }
+      ]
+    },
+    "Reviewer_Suggestions": "",
+    "First_Plan": false,
+    "Plan_Approval": true,
+    "Revision_Count": 2,
+    "Plan_Updated": false,
+    "Feedback": false,
+    "Planner_Function_Called": false,
+    "Reviewer_Function_Called": true
+  }
+}

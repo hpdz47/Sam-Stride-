@@ -1,0 +1,7 @@
+name: "Code_Optimiser"
+api_type: "openai"
+temperature: 0.3
+response_format: "CodeReviewResponse"
+llm_type: "Reasoning"
+Multimodal: false
+enable_thinking: false

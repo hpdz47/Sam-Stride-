@@ -1,0 +1,7 @@
+name: "Report_Writer"
+api_type: "openai"
+temperature: 0.3
+response_format: "ReportResponse"
+llm_type: "Reasoning"
+enable_thinking: false
+Multimodal: false

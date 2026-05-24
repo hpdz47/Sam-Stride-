@@ -1,0 +1,37 @@
+#Abstract 
+
+This report details the initial phase of a data analysis workflow designed to process high-frequency High-Performance Liquid Chromatography (HPLC) signals for 11 distinct experimental runs. The primary objective was to establish a robust pipeline for baseline correction, artifact exclusion, and the inference of chromatographic stages to facilitate subsequent peak detection and quantification. While the data preprocessing successfully handled approximately 1.1 million rows and applied Asymmetric Least Squares (AsLS) baseline correction, a critical failure was identified in the elution window inference algorithm. The dynamic threshold used to identify 'Elution' stages based on the gradient of the mobile phase composition (`Conc_B_%`) proved too stringent, resulting in the near-total misclassification of data points as 'Unknown'. Consequently, the downstream steps for peak detection and integration could not be executed as planned. This report outlines the methodology, highlights the specific algorithmic failure in stage inference, and discusses the immediate need for parameter recalibration to salvage the analysis.
+
+#Introduction 
+
+The analysis of HPLC chromatograms requires rigorous preprocessing to distinguish true analyte peaks from baseline noise and solvent artifacts. In this study, the dataset comprised high-resolution UV signals (`UV_1_280_mAU`) across 11 runs, characterized by significant missingness (~75%) in the `chromatography_stage` metadata. To address this, the analysis plan mandated an automated inference of process stages, specifically the 'Elution' phase, which is critical for defining the integration windows for peak detection. The workflow was designed to first correct the baseline using Asymmetric Least Squares (AsLS) on pre-injection regions, exclude the solvent front (volume < 1.0 ml), and then infer elution windows based on the slope of the organic modifier concentration (`Conc_B_%`). The ultimate goal of this workflow is to calculate the relative proportion of compounds per run by integrating peak areas and normalizing them against the total valid area. However, the validity of the entire downstream analysis depends on the accurate identification of the elution window. If this window is not correctly inferred, peak detection algorithms will either integrate noise or miss significant analyte signals entirely.
+
+#Methodology 
+
+The data analysis followed a three-step plan, with the current report focusing on the execution and results of Step 1: Data Preprocessing, Baseline Correction, and Elution Window Inference. 
+
+1. **Data Loading and Baseline Correction**: The raw data (`chromatography_combined.csv`) was loaded and grouped by `run_no`. To handle pre-injection artifacts, negative `volume_ml` values were retained initially to estimate the baseline. An Asymmetric Least Squares (AsLS) algorithm was applied to the `UV_1_280_mAU` signal using `volume_ml` as the x-axis, with parameters set to lambda=1e6 and p=0.001. The baseline was estimated using the pre-injection region and subsequently subtracted from the entire signal.
+
+2. **Artifact Exclusion**: Following baseline correction, rows where `volume_ml` was less than 1.0 ml were filtered out to exclude the solvent front. This step varied by run, removing between approximately 2,200 and 6,500 rows per run.
+
+3. **Elution Window Inference**: For rows where `chromatography_stage` was missing, an inference logic was applied. The algorithm calculated the rolling slope of `Conc_B_%` (window size = 5) and normalized it by the `System_flow_ml_min`. A row was labeled as 'Elution' only if the normalized slope exceeded a dynamic threshold (>2% per ml, adjusted for flow) and the volume was greater than 5 ml. All other rows were explicitly labeled as 'Unknown'.
+
+4. **Downstream Plan**: The intended subsequent steps (Step 2 and 3) involved filtering data to the 'Elution' stage, detecting peaks using `scipy.signal.find_peaks` with height and width thresholds, integrating areas at 280 nm and 260 nm for purity validation, and calculating run-level relative proportions. However, these steps were contingent on the success of the inference logic in Step 1.
+
+#Results and Discussion 
+
+The execution of Step 1 successfully processed 11 chromatographic runs, comprising a total dataset of approximately 1.1 million rows. The baseline correction and solvent front exclusion were performed without error, with the number of excluded rows varying logically across runs based on the length of the pre-injection and solvent front regions.
+
+However, the results of the elution window inference revealed a critical methodological failure. Across all 11 runs, only 9 rows were successfully labeled as 'Elution' (2 in run 16, 5 in run 30, and 7 in run 32). The vast majority of the dataset, ranging from approximately 9,700 to 120,000 rows per run, was labeled as 'Unknown'. This outcome indicates that the dynamic threshold for inferring elution based on the normalized slope of `Conc_B_%` is significantly misaligned with the actual gradient profiles present in the dataset. The threshold of >2% per ml appears to be too stringent, failing to capture the gradual or specific gradient changes characteristic of the elution phase in these experiments.
+
+This failure has severe implications for the data analysis workflow. Step 2, which relies on filtering data to include only rows labeled 'Elution' for peak detection, cannot proceed effectively. Without a robust identification of the elution window, the peak detection algorithm would either operate on an empty dataset or, if the filter were bypassed, risk integrating noise and wash artifacts as valid peaks. The raw signal quality appears intact, as evidenced by the high row counts and successful baseline subtraction, but the validity of the analysis is currently compromised by the inability to isolate the relevant chromatographic phases. 
+
+To resolve this, the slope threshold must be recalibrated, or alternative heuristics (such as absolute concentration thresholds or fixed volume windows based on experimental design) must be incorporated to correctly classify the elution stage. Until this inference logic is corrected, the calculation of peak areas, purity ratios, and run-level relative proportions remains impossible.
+
+#Conclusion 
+
+The initial phase of the data analysis workflow successfully demonstrated the capability to preprocess high-volume HPLC data, apply AsLS baseline correction, and exclude solvent front artifacts. However, the workflow encountered a critical bottleneck in the automated inference of chromatographic stages. The current algorithm for detecting the 'Elution' phase failed to identify valid windows in 11 out of 11 runs, labeling nearly the entire dataset as 'Unknown'. This failure prevents the execution of subsequent peak detection and integration steps, rendering the primary objective of calculating relative compound proportions unachievable in its current state. Immediate action is required to recalibrate the slope-based inference threshold or to implement alternative logic for stage detection. Once the elution windows are correctly identified, the workflow can proceed to peak integration, purity validation, and comparative analysis.
+
+# User Requirements 
+
+Calculate the relative proportion of each detected compound based on peak area normalization.

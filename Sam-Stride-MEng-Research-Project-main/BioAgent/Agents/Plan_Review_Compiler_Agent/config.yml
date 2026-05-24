@@ -1,0 +1,7 @@
+name: "Compiler"
+api_type: "openai"
+temperature: 0.3
+response_format: "Compile_Response"
+llm_type: "Reasoning"
+Multimodal: false
+enable_thinking: false
