@@ -1,6 +1,7 @@
 # Imports ---------------------------------------
 from Chatrooms.Data_Discovery import EDA_Analysis
 from Chatrooms.Focus_Area_and_Research import Focus_Area_and_Research_Chatroom
+from Chatrooms.Decision_Making import Decision_Making
 from Chatrooms.Planning import Planning_Chatroom
 from autogen.agentchat.group import ContextVariables
 from typing import Optional
@@ -14,7 +15,7 @@ from Chatrooms.Reporting import Final_Report
 from Config.vLLM_Manager import LLM_Manager
 #-------------------------------------------------
 class BioAgent:
-    def __init__(self, Deep_Research_Mode: bool, Max_Plan_Steps: int, Implementation_Granularity: int, User_Requirements: str, Max_Review_Loops:int, Max_Retries:int, Max_Plan_Reviews:int, Plan_Short_Term_Memory: bool, Code_Short_Term_Memory: bool, Max_Word_Count:int, Max_Images: int, Max_Markdown_Files: int, Max_Markdown_Lines: int, Run_ID: int):
+    def __init__(self, Deep_Research_Mode: bool, Max_Plan_Steps: int, Implementation_Granularity: int, User_Requirements: str, Max_Review_Loops:int, Max_Retries:int, Max_Plan_Reviews:int, Plan_Short_Term_Memory: bool, Code_Short_Term_Memory: bool, Max_Word_Count:int, Max_Images: int, Max_Markdown_Files: int, Max_Markdown_Lines: int, Run_ID: int, Screening_Mode: bool = False, Workflow_Name: str = "SUPRAMOL-SCREENING", Use_Processed: bool = True):
         """
         Docstring:
         - Deep Research Mode: (true/false). If true, then the Deep Research Agent will be used to gather some 
@@ -39,6 +40,13 @@ class BioAgent:
             "EDA_Interpretation": "",
             "Interpretation_Available": False,
             "metadata": {},
+            #---- Host-Guest Screening (Decision) Phase Variables:
+            "Screening_Verdicts": {},
+            "Screening_Summary": [],
+            "Screening_Available": False,
+            "Screening_Interpretation": "",
+            "Screening_Interpreted": False,
+            "Current_Sample_Detail": {},
             #---- Focus Area and Research Variables:
             "User_Requirements": "", # Import from text file to represent a user uploading requirements. This would be used by a User in a ChatGPT-style interface.
             "Focus_Area_Statement": "",
@@ -182,6 +190,9 @@ class BioAgent:
             "Image_List":[],
         })
         self.context_variables["User_Requirements"] = User_Requirements
+        self.Screening_Mode = Screening_Mode
+        self.Workflow_Name = Workflow_Name
+        self.Use_Processed = Use_Processed
         self.Deep_Research_Mode = Deep_Research_Mode
         self.Max_Plan_Steps = Max_Plan_Steps
         self.Implementation_Granularity = Implementation_Granularity
@@ -228,6 +239,12 @@ class BioAgent:
         #2. Focus Area and Research Phase:
         FA=Focus_Area_and_Research_Chatroom(context_variables=self.context_variables, Deep_Research_Mode=self.Deep_Research_Mode, Max_Rounds=20)
         FA.run_Conversation()
+        #2b. Host-Guest Screening (Decision) Phase — reproduces the paper's
+        #    deterministic decision-maker, then narrates it. Only runs in
+        #    Screening_Mode so the original CSV pipeline is unchanged by default.
+        if self.Screening_Mode:
+            DM=Decision_Making(context_variables=self.context_variables, Max_Rounds=10, Workflow_Name=self.Workflow_Name, Use_Processed=self.Use_Processed)
+            DM.run_Conversation()
         #3. Planning Phase:
         Plan=Planning_Chatroom(context_variables=self.context_variables, Max_Plan_Steps=self.Max_Plan_Steps, Max_Rounds=80, Max_Plan_Reviews = self.Max_Plan_Reviews, Review_Agent_Number = self.Plan_Review_Panel_Agent_Count, Git_Memory = self.Git_Memory)
         Plan.run_Conversation()

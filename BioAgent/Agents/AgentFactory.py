@@ -5,7 +5,7 @@ from autogen import ConversableAgent, LLMConfig
 from autogen.agentchat.group import ContextVariables
 from Config.vLLM_Configuration import VLLM_Config
 from Agents.AgentBase import Agent_Base
-from Utils.Pydantic_Schema import PlanResponse, ReviewResponse, LearningResponse, DiffResponse, CodeReviewResponse, RAGQuestions, Compile_Response, SummaryResponse, GitControlResponse, DebugResponse, VLResponse, MarkdownResponse, ReportResponse
+from Utils.Pydantic_Schema import PlanResponse, ReviewResponse, LearningResponse, DiffResponse, CodeReviewResponse, RAGQuestions, Compile_Response, SummaryResponse, GitControlResponse, DebugResponse, VLResponse, MarkdownResponse, ReportResponse, ScreeningVerdict, ScreeningInterpretationResponse, NMRAnalysisResponse, MSAnalysisResponse
 import base64
 from autogen.agentchat.contrib.multimodal_conversable_agent import MultimodalConversableAgent
 class Agent_Factory():
@@ -66,6 +66,14 @@ class Agent_Factory():
             response_format = MarkdownResponse
         elif config_data.get("response_format", None) == "ReportResponse":
             response_format = ReportResponse
+        elif config_data.get("response_format", None) == "ScreeningVerdict":
+            response_format = ScreeningVerdict
+        elif config_data.get("response_format", None) == "ScreeningInterpretationResponse":
+            response_format = ScreeningInterpretationResponse
+        elif config_data.get("response_format", None) == "NMRAnalysisResponse":
+            response_format = NMRAnalysisResponse
+        elif config_data.get("response_format", None) == "MSAnalysisResponse":
+            response_format = MSAnalysisResponse
         else:
             response_format = None
         llm_type = config_data["llm_type"]

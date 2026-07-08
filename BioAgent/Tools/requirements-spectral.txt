@@ -1,0 +1,8 @@
+# Dependencies for the spectral (NMR/MS) decision tools.
+#   Tools/Spectral_Analysis.py  — decision-maker ports
+#   Tools/Spectral_Ingestion.py — nmrglue/scipy processing + peak picking
+# Install into the same environment as BioAgent (also added to the Dockerfile).
+numpy
+scipy
+nmrglue
+dtw-python

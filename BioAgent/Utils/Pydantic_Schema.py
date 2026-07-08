@@ -125,3 +125,42 @@ class Z(BaseModel):
     
 class ReportResponse(BaseModel):
     Section: List[Z] = Field(..., description = "The template must be flled out for each section in the report. It must be based on the information provided.")
+
+# =========================================================================
+# Host-guest screening schemas (M2). These are ADDITIVE and OPTIONAL — the
+# deterministic tools (Tools/Spectral_Analysis.py) produce the verdicts; the
+# agents only INTERPRET them, so these schemas describe agent narration, not
+# the numeric decision. Existing CSV-path schemas are untouched.
+# =========================================================================
+
+#14 ==============================================
+class ScreeningVerdict(BaseModel):
+    """Structured per-sample screening verdict (mirrors the tool output)."""
+    Position: str = Field(..., description="Rack position / sample id.")
+    Amine: str = Field(..., description="Amine building block.")
+    Carbonyl: str = Field(..., description="Carbonyl building block.")
+    Metal: str = Field(..., description="Metal ion (e.g. ZnNTf, CuBF4).")
+    NMR_PASS: bool = Field(..., description="NMR screening verdict (different from reagents).")
+    MS_PASS: bool = Field(..., description="MS screening verdict (expected assembly m/z with metal quorum).")
+    Overall_PASS: bool = Field(..., description="Combined verdict: NMR_PASS AND MS_PASS.")
+    Reasoning: str = Field(..., description="Concise justification tying the two orthogonal signals to the verdict.")
+
+#15 ==============================================
+class ScreeningInterpretationResponse(BaseModel):
+    """Screening interpreter narration over the deterministic verdicts.
+
+    The interpreter must NOT change any boolean verdict; it explains the
+    outcome of the whole plate and highlights the samples that passed.
+    """
+    Interpretation: str = Field(..., description="A concise paragraph explaining the screening outcome across the plate, grounded in the deterministic NMR and MS verdicts. Must not alter any verdict.")
+    Passed_Samples: List[str] = Field(..., description="List of positions whose overall verdict passed (NMR_PASS AND MS_PASS). Empty list if none passed.")
+
+#16 ==============================================
+class NMRAnalysisResponse(BaseModel):
+    """NMR specialist narration for a single sample's screening result."""
+    Interpretation: str = Field(..., description="Concise explanation of the NMR screening result for the sample: whether new imine/assembly peaks appeared relative to the amine+carbonyl reagents, grounded in the peak-count and peak-shift criteria. Must not change the boolean verdict.")
+
+#17 ==============================================
+class MSAnalysisResponse(BaseModel):
+    """MS specialist narration for a single sample's screening result."""
+    Interpretation: str = Field(..., description="Concise explanation of the MS screening result: which expected assembly m/z values were observed and whether the multi-metal quorum was satisfied. Must not change the boolean verdict.")
