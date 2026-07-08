@@ -336,6 +336,22 @@ def reference_to_peak(
 # ===========================================================================
 # Convenience: full Bruker experiment -> peak list
 # ===========================================================================
+def read_bruker_spectrum(
+    sample_dir: str | Path,
+    expno: str = "10",
+    use_processed: bool = True,
+) -> tuple[NDArray, NDArray, dict[str, Any]]:
+    """Read one Bruker experiment as ``(ppm, intensity, meta)``.
+
+    ``use_processed=True`` reads TopSpin's ``pdata/1/1r`` (exact reproduction);
+    ``False`` processes the raw FID with nmrglue (portable path).
+    """
+    sample_dir = Path(sample_dir)
+    if use_processed:
+        return read_bruker_processed(sample_dir / expno / "pdata" / "1")
+    return process_fid_bruker(sample_dir / expno)
+
+
 def bruker_experiment_peaks(
     sample_dir: str | Path,
     expno: str = "10",
@@ -347,11 +363,24 @@ def bruker_experiment_peaks(
     ``use_processed=True`` reads TopSpin's ``pdata/1/1r`` (exact reproduction);
     ``False`` processes the raw FID with nmrglue (portable path).
     """
-    sample_dir = Path(sample_dir)
-    if use_processed:
-        ppm, data, meta = read_bruker_processed(sample_dir / expno / "pdata" / "1")
-    else:
-        ppm, data, meta = process_fid_bruker(sample_dir / expno)
+    ppm, data, meta = read_bruker_spectrum(sample_dir, expno, use_processed)
     peaks = pick_peaks(ppm, data, obs_mhz=meta.get("obs_mhz"), **pick_kwargs)
     meta["n_peaks"] = len(peaks)
     return peaks, meta
+
+
+def spectrum_region(
+    sample_dir: str | Path,
+    ppm_range: tuple[float, float] = SCREENING_PPM_RANGE,
+    expno: str = "10",
+    use_processed: bool = True,
+) -> NDArray:
+    """Return the intensity array within ``ppm_range`` for one experiment.
+
+    Used by the DTW replication check, which compares the (6, 11) ppm region
+    of two spectra (reproducing TopSpin ``getSpecDataPoints(physRange=...)``).
+    """
+    ppm, data, _ = read_bruker_spectrum(sample_dir, expno, use_processed)
+    lo, hi = min(ppm_range), max(ppm_range)
+    mask = (ppm >= lo) & (ppm <= hi)
+    return np.asarray(data[mask], dtype=float)

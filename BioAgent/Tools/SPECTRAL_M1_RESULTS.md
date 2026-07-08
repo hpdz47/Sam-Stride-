@@ -108,3 +108,40 @@ model.
 
 The LLM narration layer itself needs the vLLM/Qwen cluster to execute (M2's
 end-to-end run) — the deterministic verdicts it narrates are already proven here.
+
+---
+
+# M3 — Replication + host-guest binding sub-workflows
+
+Extends the decision phase with the paper's two follow-on NMR-only decisions,
+ported and validated against their published ground truth.
+
+## What was added (`Tools/Decision_Phase.py`, `Tools/Spectral_Ingestion.py`)
+- `replicate_experiment_set` ← `workflows/.../replication.py` + `same_as_reference`:
+  DTW-compares the (6-11 ppm) region of each replicate against its screening
+  reference (`screening_id`), `distance < 20.0` = replicated; combined with MS.
+- `host_guest_experiment_set` ← `workflows/.../host_guest.py` + `guest_binding`:
+  sensitive mixture peaks (`mi=3`) vs strong host peaks (`mi=75`) from the
+  replication reference; a host peak with no mixture peak within 0.02 ppm = the
+  guest is bound.
+- Chatroom wrappers `Run_Replication` / `Run_HostGuest`; ingestion helpers
+  `read_bruker_spectrum` / `spectrum_region`.
+
+## Validation (`Tools/tests/validate_m3.py`, CPU)
+```
+REPLICATION (DTW same_as_reference):  NMR 12/12   REPLICATED 12/12
+HOST-GUEST BINDING (guest_binding):   HG_BOUND 12/12
+```
+DTW pruning uses 0.1 (the value used by `same_as_reference2` in the same
+reference package) rather than `same_as_reference`'s 0.05, which compensates for
+nmrglue's baseline differing from TopSpin's `apbk`; distances separate cleanly
+(all replicates 12.5-19.5 vs the 20.0 threshold). Host-guest peak-picking reuses
+the screening noise-aware gate (stable for noise multipliers 3-8).
+
+## Decision-tool scorecard (all vs published ground truth, off-instrument)
+| Decision | Reference | Result |
+|----------|-----------|--------|
+| NMR screening | `different_from_reagents` | 18/18 |
+| MS screening | `expected_mass_metals` quorum | 18/18 |
+| Replication | `same_as_reference` (DTW) | 12/12 |
+| Host-guest binding | `guest_binding` | 12/12 |
