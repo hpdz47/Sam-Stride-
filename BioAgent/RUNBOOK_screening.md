@@ -14,8 +14,8 @@ pushed** before the deps are present. From a machine with Docker + your DockerHu
 login:
 
 ```bash
-docker build -t sts2102/meng_project:latest .
-docker push sts2102/meng_project:latest
+docker build -t hpdz47/meng_project:latest .
+docker push hpdz47/meng_project:latest
 # then on the cluster, force a fresh pull:
 rm -f /nobackup/$USER/containers/bioagent.sif
 ```

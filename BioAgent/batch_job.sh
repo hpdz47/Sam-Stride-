@@ -25,7 +25,7 @@ fi
 
 CONTAINER_DIR=/nobackup/$USER/containers
 CONTAINER=$CONTAINER_DIR/bioagent.sif
-DOCKER_IMAGE=docker://sts2102/meng_project:latest
+DOCKER_IMAGE=docker://hpdz47/meng_project:latest
 
 PROJECT=/nobackup/$USER/projects/BioAgent
 CACHE=/nobackup/$USER/hf_cache
