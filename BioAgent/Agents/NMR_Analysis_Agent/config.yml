@@ -1,0 +1,7 @@
+name: "NMR_Analysis"
+api_type: "openai"
+temperature: 0.3
+response_format: "NMRAnalysisResponse"
+llm_type: "Reasoning"
+Multimodal: false
+enable_thinking: false

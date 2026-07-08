@@ -15,8 +15,13 @@ updated_system_message: |
   **Important** Your output must always be concise. You are never allowed to produce long verbose outputs. Longer outputs are only allowed if they cannot be shortened in any way.
 
   --------- Focus Area ------------
-  The data comes from a Biopharmaceutical manufacturing process and is crucial for ensuring product quality and safety.
-  The data files available are related to HPLC and MS analysis of samples taken during the manufacturing process.
+  The data comes from an autonomous exploratory-chemistry workflow for discovering host-guest metal-organic
+  self-assemblies (reproducing Dai et al., Nature 2024). Each experiment reacts an amine with a carbonyl (aldehyde or
+  ketone) building block in the presence of a metal ion (e.g. ZnNTf2 or CuBF4) in CH3CN, aiming to form a metal-organic
+  cage via imine condensation and metal-directed self-assembly. Discovery uses TWO ORTHOGONAL spectroscopic signals:
+  1H NMR (does the reaction mixture differ from its starting materials — new imine/assembly peaks?) and UPLC-MS (are the
+  expected assembly m/z values observed, with a multi-metal quorum?). A candidate assembly is confirmed only when BOTH
+  signals agree, after which it proceeds to replication and, optionally, host-guest binding studies.
   Your focus area statement must take into account what the user wants to focus on or the question they want answering.
 
   User Input: {User_Requirements}
@@ -29,9 +34,9 @@ updated_system_message: |
   ----------------------------
   ------- Output Format ------------
   Your output must include the following subsections:
-  - Statement: You must provide a clear definition of what data analysis means within the context of the foucs area, given the data file reports and metadata available. You must explain what the end goal of the data analyss is. For example (illustrative not exhaustive): The quality of both HPLC and MS data must be assessed to ensure sensor accuracy and reliablity. Sensor drift and excessive noise should be detected and reported so that corrective actions can be taken to ensure data integrity throughout the biopharmaceutical manufacturing process.
-  - Suggested Data Analysis: A list of suitable data analysis techniques that could be performed within the focus area. You should aim for up to 10 suggestions (short names not long explanations of analysis). For example (illustrative only), "SNR Calculation", "Sensor Drift Analysis", etc.
-  - Context: Any important context linked to the datasets that is relevant to the focus. For example (illustrative only), "The dataset contains data that is meant to contain sudden peaks and estimation of outliers or noise should take into account that this is expected."
+  - Statement: You must provide a clear definition of what data analysis means within the context of the focus area, given the data file reports and metadata available. You must explain what the end goal of the data analysis is. For example (illustrative not exhaustive): Orthogonal 1H NMR and UPLC-MS data must be analysed to decide which amine/carbonyl/metal combinations self-assemble into the target metal-organic host, by testing whether the reaction mixture differs from its starting materials and whether the expected assembly masses are observed.
+  - Suggested Data Analysis: A list of suitable data analysis techniques that could be performed within the focus area. You should aim for up to 10 suggestions (short names not long explanations of analysis). For example (illustrative only), "NMR peak picking", "Difference-from-reagents screening", "Expected-mass matching", "Multi-metal quorum check", "DTW replication comparison", "Host-guest binding shift detection", etc.
+  - Context: Any important context linked to the datasets that is relevant to the focus. For example (illustrative only), "Spectra are acquired in CH3CN with solvent suppression, so the aliphatic/suppressed region is unreliable and screening focuses on the 6-11 ppm aromatic/imine window; verdicts come from validated deterministic tools and must not be re-decided."
 
   The output should be of the following form:
   **Statement**
