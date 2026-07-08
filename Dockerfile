@@ -23,4 +23,4 @@ RUN pip install --no-cache-dir --upgrade \
 RUN apt-get update && \
     apt-get install -y texlive-latex-extra 
 
-RUN python -m playwright install --with-deps chromium
+RUN python3 -m playwright install --with-deps chromium
